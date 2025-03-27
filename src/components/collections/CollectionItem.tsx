@@ -6,20 +6,19 @@ import { Collection } from "@/@types";
 
 interface CollectionItemProps {
   collection: Collection;
+  collectionName: string;
+
   onClick: () => void;
 }
 
-const CollectionItem: React.FC<CollectionItemProps> = ({ collection, onClick }) => {
+const CollectionItem: React.FC<CollectionItemProps> = ({ collection, onClick , collectionName }) => {
   const { updateCollection } = useCollections();
   const [location] = useLocation();
-  const isActive = location === `/collections/${collection.id}`;
+  const isActive = location === `/collections/${collection._id}`;
 
   const toggleFavorite = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    updateCollection({ 
-      id: collection.id, 
-      collection: { favorite: !collection.favorite } 
-    });
+    e.stopPropagation();    
+    updateCollection(collection._id);
   };
 
   return (
@@ -33,14 +32,16 @@ const CollectionItem: React.FC<CollectionItemProps> = ({ collection, onClick }) 
         <span className={`mr-3 ${isActive ? "text-primary" : "text-zinc-400"}`}>
           {CollectionIcons[collection.icon]}
         </span>
-        <span className={isActive ? "font-medium" : ""}>{collection.name}</span>
+        <span className={isActive ? "font-medium" : ""}>{collectionName}</span>
       </div>
-      
+
       <div
         onClick={toggleFavorite}
         className="text-zinc-400 hover:text-amber-500 cursor-pointer"
       >
-        <FavoriteIcon filled={collection.favorite === null ? false : collection.favorite} />
+        <FavoriteIcon
+          filled={collection.isFavorite === false ? false : collection.isFavorite}
+        />
       </div>
     </div>
   );

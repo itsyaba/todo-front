@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from "react";
 import { useCollections } from "@/hooks/useCollections";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -7,9 +6,8 @@ import { getTasks } from "@/lib/api";
 import { Collection } from "@/@types";
 import { AddIcon, CollectionIcons } from "@/icons";
 import { useAppContext } from "@/contexts/AppContext";
-
+import { useLocation } from "wouter";
 const CollectionCard = ({ collection, onClick }: { collection: Collection, onClick: () => void }) => {
-  // Using useQuery directly for each collection
   const { data: tasks = [] } = useQuery({
     queryKey: ["/task", collection.id],
     queryFn: () => getTasks(collection.id),
@@ -18,6 +16,7 @@ const CollectionCard = ({ collection, onClick }: { collection: Collection, onCli
   const completedCount = tasks.filter(t => t.completed).length;
   const totalCount = tasks.length;
   
+
   return (
     <div 
       className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 cursor-pointer hover:bg-zinc-800/50 transition-colors"
@@ -40,6 +39,7 @@ const HomePage: React.FC = () => {
   const { collections, isLoading } = useCollections();
   const { openModal } = useAppContext();
   const [filter, setFilter] = useState<'all' | 'favorites'>('all');
+  const [, setLocation] = useLocation();
 
   if (isLoading) {
     return (
@@ -56,7 +56,7 @@ const HomePage: React.FC = () => {
 
   // Filter collections based on the selected filter
   const filteredCollections = filter === 'favorites' 
-    ? collections.filter(c => c.favorite)
+    ? collections.filter(c => c.isFavorite)
     : collections;
 
   return (
@@ -81,13 +81,13 @@ const HomePage: React.FC = () => {
       
       {/* Collections grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* {filteredCollections.map(collection => (
+        {filteredCollections.map(collection => (
           <CollectionCard 
             key={collection.id} 
             collection={collection} 
-            onClick={() => setLocation(`/collections/${collection.id}`)}
+            onClick={() => setLocation(`/collections/${collection._id}`)}
           />
-        ))} */}
+        ))}
         
         {/* Add collection button */}
         <div 

@@ -12,16 +12,17 @@ export const useCollections = () => {
     queryFn: () => getCollections(),
   });
 
-  const createCollectionMutation = useMutation({
-    mutationFn: (collection: Omit<CollectionInsert, "userId">) => createCollection(collection),
+  const createCollectionMutation = useMutation({    
+    mutationFn: (collection: CollectionInsert) => createCollection(collection),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/collections"] });
+      queryClient.invalidateQueries({ queryKey: ["/collections"] });
       toast({
         title: "Collection created",
         description: "Your collection has been created successfully.",
       });
     },
     onError: (error) => {
+      console.error(error);
       toast({
         title: "Failed to create collection",
         description: error instanceof Error ? error.message : "Unknown error occurred",
@@ -31,16 +32,17 @@ export const useCollections = () => {
   });
 
   const updateCollectionMutation = useMutation({
-    mutationFn: ({ id, collection }: { id: number; collection: Partial<CollectionInsert> }) =>
-      updateCollection(id, collection),
+    mutationFn: (id : string) =>      
+      updateCollection(id, {isFavorite : true}),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/collections"] });
+      queryClient.invalidateQueries({ queryKey: ["/collections"] });
       toast({
         title: "Collection updated",
         description: "Your collection has been updated successfully.",
       });
     },
     onError: (error) => {
+      console.error(error);
       toast({
         title: "Failed to update collection",
         description: error instanceof Error ? error.message : "Unknown error occurred",
@@ -52,7 +54,7 @@ export const useCollections = () => {
   const deleteCollectionMutation = useMutation({
     mutationFn: (id: number) => deleteCollection(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/collections"] });
+      queryClient.invalidateQueries({ queryKey: ["/collections"] });
       toast({
         title: "Collection deleted",
         description: "Your collection has been deleted successfully.",
@@ -74,6 +76,6 @@ export const useCollections = () => {
     createCollection: createCollectionMutation.mutate,
     updateCollection: updateCollectionMutation.mutate,
     deleteCollection: deleteCollectionMutation.mutate,
-    isPending: createCollectionMutation.isPending || updateCollectionMutation.isPending || deleteCollectionMutation.isPending,
+    // isPending: createCollectionMutation.isPending || updateCollectionMutation.isPending || deleteCollectionMutation.isPending,
   };
 };

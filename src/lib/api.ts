@@ -1,9 +1,13 @@
+import { Collection, CollectionInsert, CollectionUpdate, Task, TaskInsert } from "@/@types";
+import { BACKEND_URL } from "@/constants";
+
 import axios from "axios";
-import { Task, Collection, InsertTask, InsertCollection } from "@shared/schema";
+const token = localStorage.getItem("token")
 
 const api = axios.create({
-  baseURL: "/api",
+  baseURL: BACKEND_URL,
   headers: {
+    "Authorization" : `Bearer ${token}` ,
     "Content-Type": "application/json",
   },
 });
@@ -11,15 +15,20 @@ const api = axios.create({
 // Collections
 export const getCollections = async (): Promise<Collection[]> => {
   const response = await api.get("/collections");
-  return response.data;
+  console.log("RESPONSEEE : " , response);
+  
+  return response.data.data;
 };
 
-export const createCollection = async (collection: Omit<InsertCollection, "userId">): Promise<Collection> => {
+export const createCollection = async (collection:CollectionInsert): Promise<Collection> => {
+  console.log(collection);
   const response = await api.post("/collections", collection);
+  console.log("RESP" , response);
+  
   return response.data;
 };
 
-export const updateCollection = async (id: number, collection: Partial<InsertCollection>): Promise<Collection> => {
+export const updateCollection = async (id: string, collection: Partial<CollectionUpdate>): Promise<Collection> => {
   const response = await api.put(`/collections/${id}`, collection);
   return response.data;
 };
@@ -79,16 +88,17 @@ export const getSubtasks = async (taskId: number): Promise<Task[]> => {
   return tasks.filter(task => task.parentId === taskId);
 };
 
-export const createTask = async (task: Omit<InsertTask, "userId">): Promise<Task> => {
+export const createTask = async (task: Omit<TaskInsert, "userId">): Promise<Task> => {
   const tasks = getLocalTasks();
   
   const newTask: Task = {
     ...task,
     id: generateId(),
-    parentId: null,
+    // parentId: null,
     completed: false,
     userId: 1, // Default userId
     createdAt: new Date(),
+    updatedAt: new Date()
   };
   
   tasks.push(newTask);
@@ -97,7 +107,7 @@ export const createTask = async (task: Omit<InsertTask, "userId">): Promise<Task
   return newTask;
 };
 
-export const createSubtask = async (parentId: number, task: Omit<InsertTask, "userId">): Promise<Task> => {
+export const createSubtask = async (parentId: number, task: Omit<TaskInsert, "userId">): Promise<Task> => {
   const tasks = getLocalTasks();
   
   // Find parent task to ensure it exists
@@ -113,6 +123,7 @@ export const createSubtask = async (parentId: number, task: Omit<InsertTask, "us
     completed: false,
     userId: 1, // Default userId
     createdAt: new Date(),
+    updatedAt: new Date()
   };
   
   tasks.push(newTask);
@@ -121,7 +132,7 @@ export const createSubtask = async (parentId: number, task: Omit<InsertTask, "us
   return newTask;
 };
 
-export const updateTask = async (id: number, taskUpdate: Partial<InsertTask>): Promise<Task> => {
+export const updateTask = async (id: number, taskUpdate: Partial<TaskInsert>): Promise<Task> => {
   const tasks = getLocalTasks();
   const taskIndex = tasks.findIndex(t => t.id === id);
   

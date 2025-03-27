@@ -24,11 +24,14 @@ const CollectionsList: React.FC = () => {
   };
 
   const navigateToCollection = (collection: Collection) => {
-    setLocation(`/collections/${collection.id}`);
+    setLocation(`/collections/${collection._id}`);
   };
 
+console.log("collections id : " , collections);
+
+
   return (
-    <div className="p-4">
+    <div className="p-4 bg-gray-900 h-[92vh] ">
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="font-medium text-base">Collections</h2>
@@ -37,9 +40,9 @@ const CollectionsList: React.FC = () => {
           onClick={toggleExpanded}
         >
           {expanded ? (
-            <CollapseIcon className="transform transition-transform duration-200" />
+            <CollapseIcon className="transform transition-all duration-200 " />
           ) : (
-            <ExpandIcon className="transform transition-transform duration-200" />
+            <ExpandIcon className="transform transition-all duration-200" />
           )}
         </button>
       </div>
@@ -53,16 +56,18 @@ const CollectionsList: React.FC = () => {
               <Skeleton className="h-10 w-full" />
               <Skeleton className="h-10 w-full" />
               <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
             </>
           ) : (
             <>
-              {/* {collections.map((collection) => (
+              {collections?.map((collection) => (
                 <CollectionItem
-                  key={collection.id}
+                  key={collection._id}
+                  collectionName={collection.name}
                   collection={collection}
                   onClick={() => navigateToCollection(collection)}
                 />
-              ))} */}
+              ))}
 
               {/* Add collection button */}
               <Button

@@ -31,9 +31,10 @@ const BaseUserSchema = z.object({
 
 const BaseCollectionSchema = z.object({
   id: z.number(),
+  _id: z.string() ,
   name: z.string().min(1),
   icon: z.string().min(1),
-  favorite: z.boolean().default(false),
+  isFavorite: z.boolean().default(false),
   userId: z.number(),
   createdAt: z.date(),
 });
@@ -61,7 +62,7 @@ export const UserInsertSchema = BaseUserSchema.pick({
 export const CollectionInsertSchema = BaseCollectionSchema.pick({
   name: true,
   icon: true,
-  favorite: true,
+  isFavorite: true,
   userId: true,
 });
 
