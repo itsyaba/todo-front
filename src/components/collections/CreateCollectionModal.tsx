@@ -35,18 +35,13 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({ isEditing
 
   const onSubmit = (data: FormValues) => {
     if (isEditing && activeCollection) {
-      updateCollection({
-        id: activeCollection.id,
-        collection: {
-          name: data.name,
-          icon: data.icon,
-        },
-      });
+      updateCollection(activeCollection._id);
     } else {
       createCollection({
         name: data.name,
         icon: data.icon,
-        favorite: false,
+        isFavorite: false,
+        userId: 0
       });
     }
     closeModal();

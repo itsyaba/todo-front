@@ -1,25 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useParams } from "wouter";
 import { useCollections } from "@/hooks/useCollections";
-import { useTasks } from "@/hooks/useTasks";
 import TasksList from "@/components/tasks/TasksList";
-import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from "@/contexts/AppContext";
-import { CollectionIcons, FavoriteIcon } from "@/icons";
+import { AddIcon, CollectionIcons, FavoriteIcon } from "@/icons";
 import { SearchIcon } from "lucide-react";
-import { Input } from "@/components/ui/input";
 
 const CollectionPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const collectionId = id ? parseInt(id) : undefined;
+  const collectionId =id;
   const { collections, updateCollection } = useCollections();
-  const { createTask } = useTasks(collectionId);
+  // const { createTask } = useTasks(id);
   const { openModal, setActiveCollection } = useAppContext();
-  const { toast } = useToast();
-  const [taskTitle, setTaskTitle] = useState("");
+  // const { toast } = useToast();
+  // const [taskTitle, setTaskTitle] = useState("");
 
-  const collection = collections.find(c => c.id === collectionId);
+  const collection = collections.find(c => c._id === collectionId);
 
+  
   useEffect(() => {
     if (collection) {
       setActiveCollection(collection);
@@ -30,42 +28,42 @@ const CollectionPage: React.FC = () => {
     };
   }, [collection, setActiveCollection]);
 
-  const handleTaskInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && taskTitle.trim() && collectionId) {
-      createTask({
-        title: taskTitle.trim(),
-        priority: "medium",
-        collectionId: collectionId,
-        completed: false
-      });
-      setTaskTitle("");
-    }
-  };
+  // const handleTaskInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  //   if (e.key === "Enter" && taskTitle.trim() && collectionId) {
+  //     createTask({
+  //       title: taskTitle.trim(),
+  //       priority: "medium",
+  //       collectionId: collectionId,
+  //       completed: false
+  //     });
+  //     setTaskTitle("");
+  //   }
+  // };
 
-  const handleAddTask = () => {
-    if (taskTitle.trim() && collectionId) {
-      createTask({
-        title: taskTitle.trim(),
-        priority: "medium",
-        collectionId: collectionId,
-        completed: false
-      });
-      setTaskTitle("");
-    } else {
-      toast({
-        title: "Task title is required",
-        description: "Please enter a title for your task.",
-        variant: "destructive",
-      });
-    }
-  };
+  // const handleAddTask = () => {
+  //   if (taskTitle.trim() && collectionId) {
+  //     createTask({
+  //       title: taskTitle.trim(),
+  //       priority: "medium",
+  //       collectionId: collectionId,
+  //       completed: false
+  //     });
+  //     setTaskTitle("");
+  //   } else {
+  //     toast({
+  //       title: "Task title is required",
+  //       description: "Please enter a title for your task.",
+  //       variant: "destructive",
+  //     });
+  //   }
+  // };
+
+  console.log(collectionId);
+  
 
   const toggleFavorite = () => {
     if (collection) {
-      updateCollection({
-        id: collection.id,
-        collection: { favorite: !collection.favorite },
-      });
+      updateCollection( collection._id);
     }
   };
 
@@ -83,13 +81,19 @@ const CollectionPage: React.FC = () => {
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center">
           <h1 className="text-xl font-semibold flex items-center">
-            <span className="mr-2 text-primary">{CollectionIcons[collection.icon]}</span>
+            <span className="mr-2 text-primary">
+              {CollectionIcons[collection.icon]}
+            </span>
             {collection.name}
-            <button 
+            <button
               className="ml-2 text-zinc-400 hover:text-amber-500"
               onClick={toggleFavorite}
             >
-              <FavoriteIcon filled={collection.favorite === null ? false : collection.favorite} />
+              <FavoriteIcon
+                filled={
+                  collection.isFavorite === null ? false : collection.isFavorite
+                }
+              />
             </button>
           </h1>
         </div>
@@ -100,39 +104,16 @@ const CollectionPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Task Creation Form */}
-      <div className="mb-6">
-        <div className="border border-zinc-800 rounded-lg overflow-hidden mb-3">
-          <Input
-            type="text"
-            placeholder="Add a task"
-            className="w-full bg-background border-none focus:ring-primary py-3 px-4"
-            value={taskTitle}
-            onChange={(e) => setTaskTitle(e.target.value)}
-            onKeyUp={handleTaskInput}
-          />
+      <div
+        className="mb-6 shadow-md shadow-gray-600 cursor-pointer py-4 px-3 rounded-md flex items-center justify-start gap-3"
+        onClick={() => openModal("createTask")}
+        aria-label="Add task"
+      >
+        <div className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center">
+          <AddIcon className="text-sm" />
         </div>
-        <div className="flex space-x-3">
-          <select 
-            className="bg-background border border-zinc-800 rounded-lg py-2 px-3 focus:outline-none focus:ring-1 focus:ring-primary"
-            defaultValue=""
-          >
-            <option value="" disabled>Priority</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
-          </select>
-          <Input
-            type="text"
-            placeholder="Select date"
-            className="bg-background border border-zinc-800 rounded-lg py-2 px-3 focus:outline-none focus:ring-1 focus:ring-primary"
-          />
-          <button
-            className="bg-primary text-white rounded-lg py-2 px-4 font-medium"
-            onClick={handleAddTask}
-          >
-            Add Task
-          </button>
+        <div className="">
+          Add New Task
         </div>
       </div>
 

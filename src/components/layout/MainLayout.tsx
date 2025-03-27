@@ -1,12 +1,12 @@
 import React, { ReactNode, useState, useEffect } from "react";
 import Header from "./Header";
 import CollectionsList from "../collections/CollectionsList";
-import { useAppContext } from "../../contexts/AppContext";
-import CreateTaskModal from "../tasks/CreateTaskModal";
-import CreateCollectionModal from "../collections/CreateCollectionModal";
-import TaskContextMenu from "../tasks/TaskContextMenu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MenuIcon } from "@/icons";
+import { useAppContext } from "@/contexts/AppContext";
+import TaskContextMenu from "../tasks/TaskContextMenu";
+import CreateTaskModal from "../tasks/CreateTaskModal";
+import CreateCollectionModal from "../collections/CreateCollectionModal";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -30,8 +30,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     setSidebarOpen(!sidebarOpen);
   };
 
+      console.log("context menu task ID : ", contextMenuTask);
+
+
   return (
-    <div className="min-h-screen flex flex-col bg-background text-zinc-100">
+    <div className="min-h-screen flex flex-col bg-gray-200 dark:bg-background dark:text-zinc-100">
       <Header />
       
       <div className="flex flex-1 relative overflow-hidden">
@@ -39,7 +42,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         <aside 
           className={`${
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } w-64 border-r border-zinc-800 overflow-y-auto scrollbar-hide transition-transform duration-200 absolute md:relative z-10 md:translate-x-0 h-full bg-background`}
+          } w-64 border-r dark:border-zinc-800 overflow-y-auto scrollbar-hide transition-transform duration-200 absolute md:relative z-10 md:translate-x-0 h-full bg-background`}
         >
           <CollectionsList />
         </aside>
@@ -61,11 +64,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       {/* Context Menu */}
       {contextMenuPosition && <TaskContextMenu />}
       
-      {/* Modals */}
       {activeModal === "createTask" && <CreateTaskModal parentId={contextMenuTask?.id} />}
-      {activeModal === "editTask" && <CreateTaskModal isEditing />}
+      {activeModal === "editTask" && <CreateTaskModal isEditing parentId={""} />}
       {activeModal === "createCollection" && <CreateCollectionModal />}
       {activeModal === "editCollection" && <CreateCollectionModal isEditing />}
+      {activeModal === "createSubTask" && <CreateTaskModal parentId={""} isSubtask/>}
     </div>
   );
 };

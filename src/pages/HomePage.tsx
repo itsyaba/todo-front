@@ -19,7 +19,7 @@ const CollectionCard = ({ collection, onClick }: { collection: Collection, onCli
 
   return (
     <div 
-      className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 cursor-pointer hover:bg-zinc-800/50 transition-colors"
+      className="bg-white shadow-md  dark:bg-zinc-900 border dark:border-zinc-800 rounded-lg p-4 cursor-pointer hover:bg-zinc-800/50 transition-colors"
       onClick={onClick}
     >
       <div className="flex items-center mb-2">

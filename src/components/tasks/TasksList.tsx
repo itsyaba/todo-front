@@ -2,23 +2,31 @@ import React from "react";
 import { useTasks } from "@/hooks/useTasks";
 import TaskItem from "./TaskItem";
 import { Skeleton } from "@/components/ui/skeleton";
+// import { useCollections } from "@/hooks/useCollections";
 
 interface TasksListProps {
-  collectionId?: number;
+  collectionId?: string;
+  // TODO fix this shit up
 }
 
 const TasksList: React.FC<TasksListProps> = ({ collectionId }) => {
-  const { tasks, isLoading } = useTasks(collectionId);
+  const { tasks, isLoading } = useTasks();
+  
+  const collectionTasks = tasks.filter(
+    (task) => task.collectionId === collectionId
+  );
 
+  console.log("COOLLL" , collectionTasks);
+  
   // Split tasks into completed and not completed
-  const completedTasks = tasks.filter((task) => task.completed);
-  const incompleteTasks = tasks.filter((task) => !task.completed);
+  const completedTasks = collectionTasks.filter((task) => task.completed );
+  const incompleteTasks = collectionTasks.filter((task) => !task.completed);
 
   if (isLoading) {
     return (
       <div className="space-y-4">
         <div>
-          <h2 className="text-sm font-medium mb-2 text-zinc-400">Tasks</h2>
+          <h2 className="text-sm font-medium mb-2 text-zinc-800 dark:text-zinc-400">Tasks</h2>
           <Skeleton className="h-20 w-full rounded-lg mb-3" />
           <Skeleton className="h-20 w-full rounded-lg mb-3" />
         </div>
@@ -35,7 +43,7 @@ const TasksList: React.FC<TasksListProps> = ({ collectionId }) => {
     <div className="space-y-4">
       {/* Incomplete Tasks */}
       <div>
-        <h2 className="text-sm font-medium mb-2 text-zinc-400">
+        <h2 className="text-sm font-medium mb-2 dark:text-zinc-400">
           Tasks • {incompleteTasks.length}
         </h2>
         

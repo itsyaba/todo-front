@@ -13,7 +13,7 @@ export const useTasks = (collectionId?: number) => {
   });
 
   const createTaskMutation = useMutation({
-    mutationFn: (task: Omit<TaskInsert, "userId">) => createTask(task),
+    mutationFn: (task : TaskInsert) => createTask(task),
     onSuccess: () => {
       if (collectionId) {
         queryClient.invalidateQueries({ queryKey: ["task", collectionId] });
@@ -25,7 +25,9 @@ export const useTasks = (collectionId?: number) => {
         description: "Your task has been created successfully.",
       });
     },
-    onError: (error: { message: any; }) => {
+    onError: (error) => {
+      console.error(error);
+      
       toast({
         title: "Failed to create task",
         description: error instanceof Error ? error.message : "Unknown error occurred",
@@ -59,9 +61,9 @@ export const useTasks = (collectionId?: number) => {
   });
 
   const updateTaskMutation = useMutation({
-    mutationFn: ({ id, task }: { id: number; task: Partial<TaskInsert> }) => updateTask(id, task),
+    mutationFn: ({ id, task }: { id: string; task: Partial<TaskInsert> }) => updateTask(id, task),
     onSuccess: (updatedTask) => {
-      if (updatedTask.parentId) {
+      if (updatedTask?.parentId) {
         queryClient.invalidateQueries({ queryKey: ["task", updatedTask.parentId, "subtasks"] });
       }
       
@@ -77,6 +79,7 @@ export const useTasks = (collectionId?: number) => {
       });
     },
     onError: (error) => {
+      console.error(error);
       toast({
         title: "Failed to update task",
         description: error instanceof Error ? error.message : "Unknown error occurred",

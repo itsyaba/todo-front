@@ -41,13 +41,14 @@ const BaseCollectionSchema = z.object({
 
 const BaseTaskSchema = z.object({
   id: z.number(),
+  _id: z.string() ,
   title: z.string().min(1),
   description: z.string().optional(),
   completed: z.boolean().default(false),
   parentId: z.number().optional(),
   priority: z.enum(["low", "medium", "high"]).default("medium"),
   dueDate: z.date().optional(),
-  collectionId: z.number().optional(),
+  collectionId: z.string().optional(),
   userId: z.number(),
   createdAt: z.date(),
   updatedAt: z.date(),

@@ -31,7 +31,7 @@ console.log("collections id : " , collections);
 
 
   return (
-    <div className="p-4 bg-gray-900 h-[92vh] ">
+    <div className="p-4 bg-gray-50 dark:bg-gray-900 h-[92vh] ">
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="font-medium text-base">Collections</h2>

@@ -1,4 +1,3 @@
-import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,7 +24,8 @@ import { CalendarIcon } from "lucide-react";
 
 interface CreateTaskModalProps {
   isEditing?: boolean;
-  parentId?: number;
+  isSubtask?: boolean;
+  parentId: string;
 }
 
 const formSchema = z.object({
@@ -33,36 +33,58 @@ const formSchema = z.object({
   description: z.string().optional(),
   priority: z.enum(["low", "medium", "high"]).default("medium"),
   dueDate: z.date().optional().nullable(),
-  collectionId: z.number().positive("Collection is required"),
+  collectionId: z.string(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isEditing = false, parentId }) => {
-  const { closeModal, activeTask, activeCollection, contextMenuTask } = useAppContext();
+
+
+const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isEditing = false, parentId , isSubtask = false }) => {
+  const { closeModal, activeTask} =
+    useAppContext();
   const { createTask, updateTask, createSubtask } = useTasks();
   const { collections } = useCollections();
+
+  // Helper function to parse the ID from the URL
+const getCollectionIdFromUrl = (): string | undefined => {
+   const pathSegments = window.location.pathname.split("/");
+   const idSegment = pathSegments[2];
+
+   if (!idSegment || !/^[0-9a-fA-F]{24}$/.test(idSegment)) {
+     return undefined;
+   }
+
+   return idSegment; 
+ };
+
+ console.log("Is sub task : " , isSubtask);
+ 
+  console.log("ID FROM URL : " , getCollectionIdFromUrl());
   
+
   // Get parent task ID from contextMenuTask when creating a subtask
-  const parentTaskId = parentId || (contextMenuTask?.id);
+  const parentTaskId = parentId;
+  console.log("parentId : " , parentId);
 
   const getDefaultValues = () => {
     if (isEditing && activeTask) {
       return {
         title: activeTask.title || "",
         description: activeTask.description || "",
-        priority: (activeTask.priority as "low" | "medium" | "high") || "medium",
+        priority:
+          (activeTask.priority as "low" | "medium" | "high") || "medium",
         dueDate: activeTask.dueDate ? new Date(activeTask.dueDate) : null,
-        collectionId: activeTask.collectionId || (activeCollection?.id || 1),
+        collectionId: getCollectionIdFromUrl(),
       };
     }
-    
+
     return {
       title: "",
       description: "",
       priority: "medium" as const,
       dueDate: null,
-      collectionId: activeCollection?.id || (collections[0]?.id || 1),
+      collectionId: getCollectionIdFromUrl(),
     };
   };
 
@@ -74,16 +96,17 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isEditing = false, pa
   const onSubmit = (data: FormValues) => {
     if (isEditing && activeTask) {
       updateTask({
-        id: activeTask.id,
+        id: activeTask._id,
         task: {
           title: data.title,
           description: data.description,
           priority: data.priority,
           // dueDate: data.dueDate,
-          collectionId: data.collectionId,
+          collectionId:  getCollectionIdFromUrl(),
         },
       });
     } else if (parentTaskId) {
+      console.log(parentTaskId);
       // Use the parentTaskId which includes fallback to contextMenuTask.id
       createSubtask({
         parentId: parentTaskId,
@@ -92,7 +115,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isEditing = false, pa
           description: data.description,
           priority: data.priority,
           // dueDate: data.dueDate,
-          collectionId: data.collectionId,
+          collectionId:  getCollectionIdFromUrl(),
         },
       });
     } else {
@@ -101,8 +124,9 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isEditing = false, pa
         description: data.description,
         priority: data.priority,
         // dueDate: data.dueDate,
-        collectionId: data.collectionId,
-        completed: false
+        collectionId:  getCollectionIdFromUrl(),
+        completed: false,
+        userId: 0,
       });
     }
     closeModal();
@@ -110,15 +134,24 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isEditing = false, pa
 
   return (
     <Dialog open onOpenChange={closeModal}>
-      <DialogContent className="bg-zinc-900 border border-zinc-800 text-zinc-100 max-w-lg" aria-describedby="task-form-description">
+      <DialogContent
+        className="bg-zinc-900 border border-zinc-800 text-zinc-100 max-w-lg"
+        aria-describedby="task-form-description"
+      >
         <DialogHeader>
           <DialogTitle className="text-lg font-medium">
-            {isEditing ? "Edit Task" : parentTaskId ? "Create Subtask" : "Create New Task"}
+            {isEditing
+              ? "Edit Task"
+              : parentTaskId
+              ? "Create Subtask"
+              : "Create New Task"}
           </DialogTitle>
           <p id="task-form-description" className="text-sm text-zinc-400">
-            {isEditing ? "Update your task details below." : 
-              parentTaskId ? "Add a subtask to organize your work hierarchically." : 
-              "Create a new task to track your work."}
+            {isEditing
+              ? "Update your task details below."
+              : parentTaskId
+              ? "Add a subtask to organize your work hierarchically."
+              : "Create a new task to track your work."}
           </p>
         </DialogHeader>
 
@@ -241,7 +274,10 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isEditing = false, pa
                     </FormControl>
                     <SelectContent className="bg-zinc-800 border-zinc-700">
                       {collections.map((collection) => (
-                        <SelectItem key={collection.id} value={collection.id.toString()}>
+                        <SelectItem
+                          key={collection._id}
+                          value={collection._id.toString()}
+                        >
                           {collection.name}
                         </SelectItem>
                       ))}
@@ -260,7 +296,10 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isEditing = false, pa
               >
                 Cancel
               </Button>
-              <Button type="submit" className="bg-primary text-white hover:bg-primary/90">
+              <Button
+                type="submit"
+                className="bg-primary text-white hover:bg-primary/90"
+              >
                 {isEditing ? "Update" : "Create"}
               </Button>
             </DialogFooter>

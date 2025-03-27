@@ -1,7 +1,6 @@
 import type React from "react";
 import { LogoIcon, AddIcon } from "@/icons";
 import { useLocation } from "wouter";
-import ThemeToggle from "../theme/ThemeToggle";
 import { useAppContext } from "@/contexts/AppContext";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -17,6 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useModalStore } from "@/store/useModalStore";
 import AuthModal from "../AuthModal";
 import { User2Icon } from "lucide-react";
+import { ModeToggle } from "../theme/mode-toggle";
 const Header: React.FC = () => {
   const { openModal } = useAppContext();
   const { isLoggedIn, account, logout } = useAuth()
@@ -42,7 +42,7 @@ const Header: React.FC = () => {
   const [, setLocation] = useLocation();
 
   return (
-    <header className="bg-background border-b border-border py-2 px-4 flex justify-between items-center">
+    <header className="bg-gray-300 dark:bg-background border-b border-border py-2 px-4 flex justify-between items-center">
       <div
         className="flex items-center space-x-2 cursor-pointer"
         onClick={() => setLocation("/")}
@@ -53,7 +53,7 @@ const Header: React.FC = () => {
 
       <div className="flex items-center space-x-3">
         <button
-          className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center"
+          className="bg-pink-600 text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center"
           onClick={() => openModal("createTask")}
           aria-label="Add task"
         >
@@ -104,7 +104,8 @@ const Header: React.FC = () => {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <ThemeToggle />
+        {/* <ThemeToggle /> */}
+        <ModeToggle />
       </div>
     </header>
   );

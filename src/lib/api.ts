@@ -37,40 +37,38 @@ export const deleteCollection = async (id: number): Promise<void> => {
   await api.delete(`/collections/${id}`);
 };
 
-// Local storage keys
-const LOCAL_TASKS_KEY = "local_tasks";
-
-// Helper function to generate unique ID
-const generateId = (): number => {
-  return Date.now() + Math.floor(Math.random() * 1000);
+export const getLocalTasks = async (): Promise<Task[]> => {
+  const response = await api.get("/task");
+  console.log("RESPONSEEE TASKKK: " , response);
+  
+  return response.data.data;
 };
 
-// Get tasks from local storage
-const getLocalTasks = (): Task[] => {
-  const tasksJson = localStorage.getItem(LOCAL_TASKS_KEY);
-  return tasksJson ? JSON.parse(tasksJson) : [];
-};
+// // Local storage keys
+// const LOCAL_TASKS_KEY = "local_tasks";
 
-// Save tasks to local storage
-const saveLocalTasks = (tasks: Task[]): void => {
-  localStorage.setItem(LOCAL_TASKS_KEY, JSON.stringify(tasks));
-};
+// // Helper function to generate unique ID
+// const generateId = (): number => {
+//   return Date.now() + Math.floor(Math.random() * 1000);
+// };
+
+// // Get tasks from local storage
+// const getLocalTasks = (): Task[] => {
+//   const tasksJson = localStorage.getItem(LOCAL_TASKS_KEY);
+//   return tasksJson ? JSON.parse(tasksJson) : [];
+// };
 
 // Tasks - Local Storage Implementation
-export const getTasks = async (collectionId?: number): Promise<Task[]> => {
+export const getTasks = async (collectionId: number | undefined): Promise<Task[]> => {
   const tasks = getLocalTasks();
+  console.log(collectionId);
   
-  // Filter by collection if specified
-  if (collectionId) {
-    return tasks.filter(task => 
-      task.collectionId === collectionId && 
-      task.parentId === null // Only return top-level tasks
-    );
+  return tasks
   }
   
   // Return all top-level tasks
-  return tasks.filter(task => task.parentId === null);
-};
+  // return tasks.filter(task => task.parentId === null);
+// };
 
 export const getTask = async (id: number): Promise<Task> => {
   const tasks = getLocalTasks();
@@ -88,23 +86,28 @@ export const getSubtasks = async (taskId: number): Promise<Task[]> => {
   return tasks.filter(task => task.parentId === taskId);
 };
 
-export const createTask = async (task: Omit<TaskInsert, "userId">): Promise<Task> => {
-  const tasks = getLocalTasks();
+export const createTask = async (task: TaskInsert): Promise<Task> => {
+  // const tasks = getLocalTasks();
   
-  const newTask: Task = {
-    ...task,
-    id: generateId(),
-    // parentId: null,
-    completed: false,
-    userId: 1, // Default userId
-    createdAt: new Date(),
-    updatedAt: new Date()
-  };
+   const response = await api.post("/task", task);
+  console.log("RESP" , response);
   
-  tasks.push(newTask);
-  saveLocalTasks(tasks);
+  return response.data;
+
+  // const newTask: Task = {
+  //   ...task,
+  //   // parentId: null,
+  //   completed: false,
+  //   userId: 1, // Default userId
+  //   createdAt: new Date(),
+  //   updatedAt: new Date(),
+  //   id: 0
+  // };
   
-  return newTask;
+  // // tasks.push(newTask);
+  // // saveLocalTasks(tasks);
+  
+  // return newTask;
 };
 
 export const createSubtask = async (parentId: number, task: Omit<TaskInsert, "userId">): Promise<Task> => {
@@ -118,7 +121,7 @@ export const createSubtask = async (parentId: number, task: Omit<TaskInsert, "us
   
   const newTask: Task = {
     ...task,
-    id: generateId(),
+    id: 3,
     parentId: parentId,
     completed: false,
     userId: 1, // Default userId
@@ -132,24 +135,37 @@ export const createSubtask = async (parentId: number, task: Omit<TaskInsert, "us
   return newTask;
 };
 
-export const updateTask = async (id: number, taskUpdate: Partial<TaskInsert>): Promise<Task> => {
-  const tasks = getLocalTasks();
-  const taskIndex = tasks.findIndex(t => t.id === id);
-  
-  if (taskIndex === -1) {
-    throw new Error(`Task with ID ${id} not found`);
+
+// export const updateCollection = async (id: string, collection: Partial<CollectionUpdate>): Promise<Collection> => {
+//   const response = await api.put(`/collections/${id}`, collection);
+//   return response.data;
+// };
+
+export const updateTask = async (
+  id: string,
+  taskUpdate: Partial<TaskInsert>
+): Promise<Task> => {
+  try {
+    // const response = await axios.patch(`/task/${id}`, taskUpdate, {
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   withCredentials: true, 
+    // });
+    console.log(id , "ID");
+    
+     const response = await api.put(`/task/${id}`, taskUpdate);
+
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.message || 
+        `Failed to update task: ${error.message}`
+      );
+    }
+    throw new Error('Unknown error occurred');
   }
-  
-  // Update the task
-  const updatedTask = {
-    ...tasks[taskIndex],
-    ...taskUpdate,
-  };
-  
-  tasks[taskIndex] = updatedTask;
-  saveLocalTasks(tasks);
-  
-  return updatedTask;
 };
 
 export const deleteTask = async (id: number): Promise<void> => {

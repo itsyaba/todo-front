@@ -1,7 +1,13 @@
 import { Collection, Task } from "@/@types";
 import React, { createContext, useContext, useState, ReactNode } from "react";
 
-type ModalType = "createTask" | "editTask" | "createCollection" | "editCollection" | null;
+type ModalType =
+  | "createTask"
+  | "editTask"
+  | "createCollection"
+  | "editCollection"
+  | "createSubTask"
+  | null;
 
 interface AppContextType {
   activeCollection: Collection | null;
@@ -59,6 +65,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const showContextMenu = (x: number, y: number, task: Task) => {
     setContextMenuPosition({ x, y });
     setContextMenuTask(task);
+    console.log("SETTING TASK FOR CONTEXT MENU : " , task);
+    
   };
 
   const hideContextMenu = () => {
