@@ -16,7 +16,7 @@ const TasksList: React.FC<TasksListProps> = ({ collectionId }) => {
     (task) => task.collectionId === collectionId
   );
 
-  console.log("COOLLL" , collectionTasks);
+  // console.log("COOLLL" , collectionTasks);
   
   // Split tasks into completed and not completed
   const completedTasks = collectionTasks.filter((task) => task.completed );

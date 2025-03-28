@@ -40,7 +40,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 
 
-const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isEditing = false, parentId , isSubtask = false }) => {
+const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isEditing = false, parentId}) => {
   const { closeModal, activeTask} =
     useAppContext();
   const { createTask, updateTask, createSubtask } = useTasks();
@@ -58,14 +58,8 @@ const getCollectionIdFromUrl = (): string | undefined => {
    return idSegment; 
  };
 
- console.log("Is sub task : " , isSubtask);
  
-  console.log("ID FROM URL : " , getCollectionIdFromUrl());
-  
-
-  // Get parent task ID from contextMenuTask when creating a subtask
   const parentTaskId = parentId;
-  console.log("parentId : " , parentId);
 
   const getDefaultValues = () => {
     if (isEditing && activeTask) {
@@ -191,12 +185,12 @@ const getCollectionIdFromUrl = (): string | undefined => {
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-row items-center justify-between gap-4">
               <FormField
                 control={form.control}
                 name="priority"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="w-2/4">
                     <FormLabel>Priority</FormLabel>
                     <Select
                       onValueChange={field.onChange}
@@ -221,7 +215,7 @@ const getCollectionIdFromUrl = (): string | undefined => {
                 control={form.control}
                 name="dueDate"
                 render={({ field }) => (
-                  <FormItem className="flex flex-col">
+                  <FormItem className="flex flex-col w-2/4 pt-2">
                     <FormLabel>Due Date</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
@@ -229,7 +223,7 @@ const getCollectionIdFromUrl = (): string | undefined => {
                           <Button
                             variant={"outline"}
                             className={cn(
-                              "bg-zinc-800 border-zinc-700 focus:ring-primary pl-3 text-left font-normal",
+                              "bg-zinc-800 border-zinc-700 text-left font-normal",
                               !field.value && "text-zinc-400"
                             )}
                           >
@@ -292,13 +286,13 @@ const getCollectionIdFromUrl = (): string | undefined => {
                 type="button"
                 variant="outline"
                 onClick={closeModal}
-                className="bg-zinc-800 text-zinc-100 border-zinc-700 hover:bg-zinc-700"
+                className="bg-transparent text-zinc-100 border-zinc-700 hover:bg-zinc-700/60"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                className="bg-primary text-white hover:bg-primary/90"
+                className="bg-zinc-700 text-white hover:bg-zinc-700/30"
               >
                 {isEditing ? "Update" : "Create"}
               </Button>

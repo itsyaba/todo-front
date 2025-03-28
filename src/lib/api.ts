@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Collection, CollectionInsert, CollectionUpdate, Task, TaskInsert } from "@/@types";
 import { BACKEND_URL } from "@/constants";
 
@@ -15,7 +16,7 @@ const api = axios.create({
 // Collections
 export const getCollections = async (): Promise<Collection[]> => {
   const response = await api.get("/collections");
-  console.log("RESPONSEEE : " , response);
+  // console.log("RESPONSEEE : " , response);
   
   return response.data.data;
 };
@@ -23,8 +24,7 @@ export const getCollections = async (): Promise<Collection[]> => {
 export const createCollection = async (collection:CollectionInsert): Promise<Collection> => {
   console.log(collection);
   const response = await api.post("/collections", collection);
-  console.log("RESP" , response);
-  
+  // console.log("RESP" , response);
   return response.data;
 };
 
@@ -38,27 +38,10 @@ export const deleteCollection = async (id: number): Promise<void> => {
 };
 
 export const getLocalTasks = async (): Promise<Task[]> => {
-  const response = await api.get("/task");
-  console.log("RESPONSEEE TASKKK: " , response);
-  
+  const response = await api.get("/task");  
   return response.data.data;
 };
 
-// // Local storage keys
-// const LOCAL_TASKS_KEY = "local_tasks";
-
-// // Helper function to generate unique ID
-// const generateId = (): number => {
-//   return Date.now() + Math.floor(Math.random() * 1000);
-// };
-
-// // Get tasks from local storage
-// const getLocalTasks = (): Task[] => {
-//   const tasksJson = localStorage.getItem(LOCAL_TASKS_KEY);
-//   return tasksJson ? JSON.parse(tasksJson) : [];
-// };
-
-// Tasks - Local Storage Implementation
 export const getTasks = async (collectionId: number | undefined): Promise<Task[]> => {
   const tasks = getLocalTasks();
   console.log(collectionId);
@@ -81,9 +64,22 @@ export const getTask = async (id: number): Promise<Task> => {
   return task;
 };
 
-export const getSubtasks = async (taskId: number): Promise<Task[]> => {
-  const tasks = getLocalTasks();
-  return tasks.filter(task => task.parentId === taskId);
+export const getSubtasks = async (taskId: string): Promise<Task[]> => {
+  try {
+    const response = await api.get(`/task/${taskId}`);
+    // Since getByIdTask returns an array with one task, get the first item
+    const parentTask = response.data.data[0];
+    console.log("PARENT TASK : " , parentTask , "THIS IS FOR GETTING SUBTASKS" , response.data.data);
+    return parentTask?.subTasks || [];
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.message || 
+        `Failed to get subtasks: ${error.message}`
+      );
+    }
+    throw new Error('Unknown error occurred');
+  }
 };
 
 export const createTask = async (task: TaskInsert): Promise<Task> => {
@@ -110,31 +106,68 @@ export const createTask = async (task: TaskInsert): Promise<Task> => {
   // return newTask;
 };
 
-export const createSubtask = async (parentId: number, task: Omit<TaskInsert, "userId">): Promise<Task> => {
-  const tasks = getLocalTasks();
-  
-  // Find parent task to ensure it exists
-  const parentTask = tasks.find(t => t.id === parentId);
-  if (!parentTask) {
-    throw new Error(`Parent task with ID ${parentId} not found`);
+// Create a subtask for main task
+export const createSubtask = async (parentId: string, task: Partial<TaskInsert>): Promise<Task> => {
+  try {
+    console.log("Creating subtask with:", {
+      parentId,
+      task,
+      url: `/task/${parentId}/subtasks`
+    }, "THIS IS FOR CREATING SUBTASK(NOT NESTED)");
+    
+    const response = await api.post(`/task/${parentId}/subtasks`, {
+      title: task.title,
+      description: task.description,
+      dueDate: task.dueDate
+    });
+    return response.data.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error("ERROR while creating subtasks : ", error);
+      console.error("Request data:", {
+        parentId,
+        task,
+        error: error.response?.data
+      });
+      throw new Error(
+        error.response?.data?.message || 
+        `Failed to create subtask: ${error.message}`
+      );
+    }
+    throw new Error('Unknown error occurred');
   }
-  
-  const newTask: Task = {
-    ...task,
-    id: 3,
-    parentId: parentId,
-    completed: false,
-    userId: 1, // Default userId
-    createdAt: new Date(),
-    updatedAt: new Date()
-  };
-  
-  tasks.push(newTask);
-  saveLocalTasks(tasks);
-  
-  return newTask;
 };
 
+// Create a nested subtask (subtask of a subtask)
+export const createNestedSubtask = async (
+  taskId: string,
+  parentSubtaskId: string,
+  task: Partial<TaskInsert>
+): Promise<Task> => {
+  try {
+    console.log("Creating nested subtask with:", {
+      "taskId" : taskId,
+      // "parentSubtaskId" : parentSubtaskId,
+      "task" : task,
+      url: `/task/${taskId}/subtasks/${parentSubtaskId}`
+    });
+    const response = await api.post(`/task/${taskId}/subtasks/${parentSubtaskId}`, {
+      title: task.title,
+      description: task.description,
+      dueDate: task.dueDate
+    });
+    return response.data.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error("ERROR while creating nested subtask : ", error);
+      throw new Error(
+        error.response?.data?.message || 
+        `Failed to create nested subtask: ${error.message}`
+      );
+    }
+    throw new Error('Unknown error occurred');
+  }
+};
 
 // export const updateCollection = async (id: string, collection: Partial<CollectionUpdate>): Promise<Collection> => {
 //   const response = await api.put(`/collections/${id}`, collection);
@@ -168,26 +201,19 @@ export const updateTask = async (
   }
 };
 
-export const deleteTask = async (id: number): Promise<void> => {
-  let tasks = getLocalTasks();
-  
-  // Find all subtasks recursively
-  const findSubtaskIds = (parentId: number): number[] => {
-    const directSubtasks = tasks.filter(t => t.parentId === parentId);
-    const directIds = directSubtasks.map(t => t.id);
-    
-    // Get all nested subtask ids
-    const nestedIds = directIds.flatMap(subtaskId => findSubtaskIds(subtaskId));
-    
-    return [...directIds, ...nestedIds];
-  };
-  
-  // Get all subtask ids to delete
-  const subtaskIds = findSubtaskIds(id);
-  
-  // Filter out the task and all its subtasks
-  tasks = tasks.filter(t => t.id !== id && !subtaskIds.includes(t.id));
-  saveLocalTasks(tasks);
+export const deleteTask = async (id: string): Promise<void> => {
+  try {
+    await api.delete(`/task/${id}`);
+  } catch (error) {
+    console.error("ERROR while deleting task : " , error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.message ||
+        `Failed to delete task: ${error.message}`
+      );
+    }
+    throw new Error('Unknown error occurred');
+  }
 };
 
 export default api;

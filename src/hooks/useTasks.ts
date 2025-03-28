@@ -1,7 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createTask, deleteTask, getSubtasks, getTasks, updateTask, createSubtask } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import { Task, TaskInsert, TaskUpdate } from "@/@types";
+import { Task, TaskInsert } from "@/@types";
+
+interface SubtaskParams {
+  parentId: string;
+  task: Partial<TaskInsert> & {
+    parentSubtaskId?: string;
+  };
+}
 
 export const useTasks = (collectionId?: number) => {
   const queryClient = useQueryClient();
@@ -37,10 +44,9 @@ export const useTasks = (collectionId?: number) => {
   });
 
   const createSubtaskMutation = useMutation({
-    mutationFn: ({ parentId, task }: { parentId: number; task: Omit<TaskUpdate, "userId"> }) =>
-      createSubtask(parentId, task),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["task", variables.parentId, "subtasks"] });
+    mutationFn: (params: { taskId: string; task: Partial<TaskInsert> }) => 
+      createSubtask(params.taskId, params.task),
+    onSuccess: () => {
       if (collectionId) {
         queryClient.invalidateQueries({ queryKey: ["task", collectionId] });
       } else {
@@ -52,6 +58,7 @@ export const useTasks = (collectionId?: number) => {
       });
     },
     onError: (error) => {
+      console.error("Error creating subtask:", error);
       toast({
         title: "Failed to create subtask",
         description: error instanceof Error ? error.message : "Unknown error occurred",
@@ -117,10 +124,11 @@ export const useTasks = (collectionId?: number) => {
     },
   });
 
-  const useSubtasks = (taskId: number) => {
+  const useSubtasks = (taskId: string) => {
     return useQuery<Task[]>({
-      queryKey: ["task", taskId, "subtasks"],
+      queryKey: ["task", taskId, "subtask"],
       queryFn: () => getSubtasks(taskId),
+      enabled: !!taskId,
     });
   };
 

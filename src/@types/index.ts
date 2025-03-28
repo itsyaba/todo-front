@@ -39,9 +39,9 @@ const BaseCollectionSchema = z.object({
   createdAt: z.date(),
 });
 
-const BaseTaskSchema = z.object({
+const BaseTaskSchema: z.ZodObject<any> = z.object({
   id: z.number(),
-  _id: z.string() ,
+  _id: z.string(),
   title: z.string().min(1),
   description: z.string().optional(),
   completed: z.boolean().default(false),
@@ -52,6 +52,15 @@ const BaseTaskSchema = z.object({
   userId: z.number(),
   createdAt: z.date(),
   updatedAt: z.date(),
+  subTasks: z.array(z.object({
+    _id: z.string(),
+    title: z.string(),
+    description: z.string().optional(),
+    completed: z.boolean(),
+    dueDate: z.date().optional(),
+    parentSubtaskId: z.string().optional(),
+    subTasks: z.array(z.lazy(() => BaseTaskSchema)).optional(),
+  })),
 });
 
 // Insert Schemas
@@ -114,3 +123,26 @@ export type UserWithRelations = User & {
   collections: Collection[];
   tasks: Task[];
 };
+
+export interface SubTask {
+  _id: string;
+  title: string;
+  description?: string;
+  completed: boolean;
+  dueDate?: Date;
+  subTasks?: SubTask[];
+  parentSubtaskId?: string;
+}
+
+// export interface Task {
+//   _id: string;
+//   title: string;
+//   description?: string;
+//   completed: boolean;
+//   createdAt: Date;
+//   updatedAt: Date;
+//   subTasks: SubTask[];
+//   parentSubtaskId?: string;
+//   priority?: 'low' | 'medium' | 'high';
+//   collectionId?: string;
+// }

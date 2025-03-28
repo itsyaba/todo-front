@@ -32,7 +32,6 @@ const initContext: Context = {
 const AuthContext = createContext(initContext);
 const { Provider } = AuthContext;
 
-// export the consumer
 // eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext);
 
@@ -57,7 +56,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
           resolve(true);
         })
         .catch((error) => {
-          // console.error(error);
+          console.error(error);
           reject(error?.response?.data?.message || error.message);
         });
     });
@@ -83,6 +82,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     setIsLoggedIn(false);
     setAccount(null);
     setToken(null);
+    window.location.reload();
   };
 
   const loginWithToken = async () => {
@@ -104,8 +104,6 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     }
   };
 
-  // This side effect keeps local storage updated with recent token value,
-  // making sure it can be re-used upon refresh or re-open browser
   useEffect(() => {
     if (token) {
       localStorage.setItem("token", token);
@@ -114,9 +112,6 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     }
   }, [token]);
 
-  // This side effect runs only if we have a token, but no account or logged-in boolean.
-  // This "if" statement is "true" only when refreshed, or re-opened the browser,
-  // if true, it will then ask the backend for the account information (and will get them if the token hasn't expired)
   useEffect(() => {
     if (!isLoggedIn && !account && token) loginWithToken();
   }, [isLoggedIn, account, token]); // eslint-disable-line react-hooks/exhaustive-deps

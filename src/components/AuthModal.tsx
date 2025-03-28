@@ -41,6 +41,7 @@ const AuthModal = () => {
       } else {
         await login(formData);
       }
+      window.location.reload()
       onClose()
     } catch (error: unknown) {
       if (typeof error === 'string') {
@@ -64,11 +65,11 @@ const AuthModal = () => {
       className="bg-black"
       sx={{
         "& .MuiDialog-paper": {
-          width: "400px", // Fixed width
+          width: "600px", // Fixed width
           maxWidth: "90vw", // Responsive maximum width
           minHeight: "300px",
           padding: "20px",
-          backgroundColor: "background.paper",
+          backgroundColor: "",
         },
       }}
     >

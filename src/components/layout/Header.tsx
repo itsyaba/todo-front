@@ -21,10 +21,8 @@ const Header: React.FC = () => {
   const { openModal } = useAppContext();
   const { isLoggedIn, account, logout } = useAuth()
     const { setCurrentModal } = useModalStore()
-    const [popover, setPopover] = useState(false)
-  
+    const [, setPopover] = useState(false)
 
-    console.log(popover);
     
     const closePopover = () => {
       setPopover(false)

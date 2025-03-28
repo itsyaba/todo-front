@@ -6,7 +6,7 @@ type ModalType =
   | "editTask"
   | "createCollection"
   | "editCollection"
-  | "createSubTask"
+  | "createSubtask"
   | null;
 
 interface AppContextType {
@@ -41,11 +41,18 @@ const AppContext = createContext<AppContextType>(defaultContext);
 
 export const useAppContext = () => useContext(AppContext);
 
-export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [activeCollection, setActiveCollection] = useState<Collection | null>(null);
+export const AppProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
+  const [activeCollection, setActiveCollection] = useState<Collection | null>(
+    null
+  );
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [activeModal, setActiveModal] = useState<ModalType>(null);
-  const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(null);
+  const [contextMenuPosition, setContextMenuPosition] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
   const [contextMenuTask, setContextMenuTask] = useState<Task | null>(null);
 
   const openModal = (type: ModalType, task?: Task) => {
