@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import { type ChangeEventHandler, Fragment, useState } from 'react'
+import { type ChangeEventHandler, useState } from 'react'
 import { Dialog } from '@mui/material'
 import { useAuth } from '../contexts/AuthContext'
 import { useModalStore } from '../store/useModalStore'
@@ -8,6 +8,7 @@ import { Account } from '../@types'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { ClipboardList } from 'lucide-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 interface FormData {
   username: Account['username']
@@ -29,6 +30,12 @@ const AuthModal = () => {
   const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleTabChange = (value: string) => {
+    setCurrentModal(value)
+    setError('')
+    setFormData({ username: '', password: '' })
   }
 
   const clickSubmit = async () => {
@@ -83,51 +90,87 @@ const AuthModal = () => {
           <ClipboardList className="w-8 h-8 text-amber-500" />
         </div>
         
-        <h1 className="text-2xl font-semibold text-white mb-4">TODO</h1>
+        <h1 className="text-2xl font-semibold text-white">TODO</h1>
 
-        {/* Input Fields */}
-        <div className="w-full space-y-3">
-          <Input
-            type="text"
-            name="username"
-            placeholder="Username"
-            value={formData.username}
-            onChange={handleChange}
-            className="w-full bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-400"
-          />
-          <Input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            className="w-full bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-400"
-          />
-        </div>
+        <Tabs 
+          defaultValue="LOGIN" 
+          value={currentModal} 
+          onValueChange={handleTabChange}
+          className="w-full"
+        >
+          <TabsList className="w-full mb-4">
+            <TabsTrigger value="LOGIN" className="w-full">Login</TabsTrigger>
+            <TabsTrigger value="REGISTER" className="w-full">Register</TabsTrigger>
+          </TabsList>
 
-        {error && (
-          <span className="text-red-500 text-sm">{error}</span>
-        )}
+          <TabsContent value="LOGIN" className="space-y-4">
+            <div className="w-full space-y-3">
+              <Input
+                type="text"
+                name="username"
+                placeholder="Username"
+                value={formData.username}
+                onChange={handleChange}
+                className="w-full bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-400"
+              />
+              <Input
+                type="password"
+                name="password"
+                placeholder="Password"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-400"
+              />
+            </div>
 
-        {/* Action Buttons */}
-        <div className="w-full space-y-3">
-          <Button
-            onClick={clickSubmit}
-            disabled={isSubmitButtonDisabled || loading}
-            variant="default"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2"
-          >
-            {loading ? 'Loading...' : isRegisterMode ? 'Register' : 'Login'}
-          </Button>
+            {error && (
+              <span className="text-red-500 text-sm block">{error}</span>
+            )}
 
-          <Button
-            onClick={() => setCurrentModal(isRegisterMode ? "LOGIN" : "REGISTER")}
-            variant="ghost"
-            className="w-full text-zinc-400 hover:text-white hover:bg-transparent"
-          >
-            {isRegisterMode ? "or login" : "or register"}
-          </Button>
-        </div>
+            <Button
+              onClick={clickSubmit}
+              disabled={isSubmitButtonDisabled || loading}
+              variant="default"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2"
+            >
+              {loading ? 'Loading...' : 'Login'}
+            </Button>
+          </TabsContent>
+
+          <TabsContent value="REGISTER" className="space-y-4">
+            <div className="w-full space-y-3">
+              <Input
+                type="text"
+                name="username"
+                placeholder="Username"
+                value={formData.username}
+                onChange={handleChange}
+                className="w-full bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-400"
+              />
+              <Input
+                type="password"
+                name="password"
+                placeholder="Password"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-400"
+              />
+            </div>
+
+            {error && (
+              <span className="text-red-500 text-sm block">{error}</span>
+            )}
+
+            <Button
+              onClick={clickSubmit}
+              disabled={isSubmitButtonDisabled || loading}
+              variant="default"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2"
+            >
+              {loading ? 'Loading...' : 'Register'}
+            </Button>
+          </TabsContent>
+        </Tabs>
       </div>
     </Dialog>
   )

@@ -40,7 +40,7 @@ const Header: React.FC = () => {
   const [, setLocation] = useLocation();
 
   return (
-    <header className="bg-gray-300 dark:bg-background border-b border-border py-2 px-4 flex justify-between items-center">
+    <header className="bg-gray-300 dark:bg-background border-b border-border py-2 px-4 flex justify-between items-center text-black dark:text-white">
       <div
         className="flex items-center space-x-2 cursor-pointer"
         onClick={() => setLocation("/")}

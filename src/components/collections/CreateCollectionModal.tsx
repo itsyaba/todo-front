@@ -112,11 +112,11 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({ isEditing
                 type="button"
                 variant="outline"
                 onClick={closeModal}
-                className="bg-zinc-800 text-zinc-100 border-zinc-700 hover:bg-zinc-700"
+                className="bg-transparent text-zinc-100 border-zinc-700 hover:bg-zinc-700/60"
               >
                 Cancel
               </Button>
-              <Button type="submit" className="bg-primary text-white hover:bg-primary/90">
+              <Button type="submit" className="bg-zinc-700 text-white hover:bg-zinc-700/30">
                 {isEditing ? "Update" : "Create"}
               </Button>
             </DialogFooter>
