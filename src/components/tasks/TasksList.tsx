@@ -2,7 +2,7 @@ import React from "react";
 import { useTasks } from "@/hooks/useTasks";
 import TaskItem from "./TaskItem";
 import { Skeleton } from "@/components/ui/skeleton";
-// import { useCollections } from "@/hooks/useCollections";
+import { Mailbox } from "lucide-react";
 
 interface TasksListProps {
   collectionId?: string;
@@ -16,7 +16,6 @@ const TasksList: React.FC<TasksListProps> = ({ collectionId }) => {
     (task) => task.collectionId === collectionId
   );
 
-  // console.log("COOLLL" , collectionTasks);
   
   // Split tasks into completed and not completed
   const completedTasks = collectionTasks.filter((task) => task.completed );
@@ -52,8 +51,9 @@ const TasksList: React.FC<TasksListProps> = ({ collectionId }) => {
             <TaskItem key={task.id} task={task} />
           ))
         ) : (
-          <div className="text-zinc-400 text-center py-8 border border-zinc-800 rounded-lg">
-            No active tasks. Add a new task to get started.
+          <div className="text-zinc-400 text-center py-8 border border-zinc-800 rounded-lg flex items-center justify-center gap-2 flex-col">
+            <Mailbox className="size-48 text-zinc-500" />
+            <p className="text-md">No active tasks. Add a new task to get started.</p>
           </div>
         )}
       </div>

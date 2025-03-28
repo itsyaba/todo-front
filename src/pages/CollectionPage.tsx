@@ -81,7 +81,7 @@ const CollectionPage: React.FC = () => {
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center">
           <h1 className="text-xl font-semibold flex items-center">
-            <span className="mr-2 text-primary">
+            <span className="mr-2 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full p-2">
               {CollectionIcons[collection.icon]}
             </span>
             {collection.name}
@@ -105,7 +105,7 @@ const CollectionPage: React.FC = () => {
       </div>
 
       <div
-        className="mb-6 shadow-md shadow-gray-600 cursor-pointer py-4 px-3 rounded-md flex items-center justify-start gap-3"
+        className="mb-6 shadow-md shadow-gray-800 cursor-pointer py-4 px-3 rounded-md flex items-center justify-start gap-3"
         onClick={() => openModal("createTask")}
         aria-label="Add task"
       >

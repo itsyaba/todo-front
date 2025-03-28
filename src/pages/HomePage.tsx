@@ -24,14 +24,15 @@ const CollectionCard = ({ collection, onClick }: { collection: Collection, onCli
       className="bg-white shadow-md  dark:bg-zinc-900 border dark:border-zinc-800 rounded-lg p-4 cursor-pointer hover:bg-zinc-800/50 transition-colors"
       onClick={onClick}
     >
-      <div className="flex items-center mb-2">
-        <div className="text-3xl mr-3">
+      <div className="flex items-center mb-2 flex-row">
+        <div className="text-3xl mr-3 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full p-2">
           {CollectionIcons[collection.icon]}
         </div>
         <h2 className="text-lg font-medium">{collection.name}</h2>
       </div>
       <div className="text-sm text-zinc-400 mt-auto">
         {completedCount}/{totalCount} done
+        {/* TODO : add the total count of tasks */}
       </div>
     </div>
   );

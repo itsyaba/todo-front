@@ -27,7 +27,7 @@ const CollectionsList: React.FC = () => {
     setLocation(`/collections/${collection._id}`);
   };
 
-console.log("collections id : " , collections);
+// console.log("collections id : " , collections);
 
   if (collections.length === 0) return null
 
@@ -80,7 +80,7 @@ console.log("collections id : " , collections);
                     className="w-full justify-start text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"
                     onClick={handleCreateCollection}
                   >
-                    <AddIcon className="mr-3" />
+                    <AddIcon className="mr-3 size-6" />
                     <span>Add Collection</span>
                   </Button>
                 </>
