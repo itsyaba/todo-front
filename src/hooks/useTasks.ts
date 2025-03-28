@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createTask, deleteTask, getSubtasks, getTasks, updateTask, createSubtask } from "@/lib/api";
+import { createTask, deleteTask, getSubtasks, getTasks, updateTask, createSubtask, createNestedSubtask } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { Task, TaskInsert } from "@/@types";
 
@@ -34,7 +34,6 @@ export const useTasks = (collectionId?: number) => {
     },
     onError: (error) => {
       console.error(error);
-      
       toast({
         title: "Failed to create task",
         description: error instanceof Error ? error.message : "Unknown error occurred",
@@ -44,14 +43,36 @@ export const useTasks = (collectionId?: number) => {
   });
 
   const createSubtaskMutation = useMutation({
-    mutationFn: (params: { taskId: string; task: Partial<TaskInsert> }) => 
-      createSubtask(params.taskId, params.task),
-    onSuccess: () => {
+    mutationFn: async (params: { 
+      taskId: string; 
+      task: Partial<TaskInsert>;
+      isNested?: boolean;
+      mainTaskId?: string;
+    }) => {
+      if (params.isNested && params.mainTaskId) {
+        // For nested subtasks
+        return createNestedSubtask(params.mainTaskId, params.taskId, params.task);
+      } else {
+        // For regular subtasks
+        return createSubtask(params.taskId, params.task);
+      }
+    },
+    onSuccess: (_, params) => {
+      // Invalidate the main task's subtasks query
+      queryClient.invalidateQueries({ queryKey: ["task", params.mainTaskId || params.taskId, "subtask"] });
+      
+      // If it's a nested subtask, also invalidate the parent task's subtasks query
+      if (params.isNested) {
+        queryClient.invalidateQueries({ queryKey: ["task", params.taskId, "subtask"] });
+      }
+
+      // Invalidate the collection query if needed
       if (collectionId) {
         queryClient.invalidateQueries({ queryKey: ["task", collectionId] });
       } else {
         queryClient.invalidateQueries({ queryKey: ["task"] });
       }
+
       toast({
         title: "Subtask created",
         description: "Your subtask has been created successfully.",
@@ -71,7 +92,7 @@ export const useTasks = (collectionId?: number) => {
     mutationFn: ({ id, task }: { id: string; task: Partial<TaskInsert> }) => updateTask(id, task),
     onSuccess: (updatedTask) => {
       if (updatedTask?.parentId) {
-        queryClient.invalidateQueries({ queryKey: ["task", updatedTask.parentId, "subtasks"] });
+        queryClient.invalidateQueries({ queryKey: ["task", updatedTask.parentId, "subtask"] });
       }
       
       if (collectionId) {
@@ -101,7 +122,7 @@ export const useTasks = (collectionId?: number) => {
       const task = tasksQuery.data?.find(t => t.id === id);
       
       if (task?.parentId) {
-        queryClient.invalidateQueries({ queryKey: ["task", task.parentId, "subtasks"] });
+        queryClient.invalidateQueries({ queryKey: ["task", task.parentId, "subtask"] });
       }
       
       if (collectionId) {

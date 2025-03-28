@@ -26,7 +26,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
   isSubtask = false,
   nestingLevel = 0 
 }) => {
-  const { updateTask } = useTasks();
+  const { updateTask, createSubtask } = useTasks();
   const { showContextMenu, openModal } = useAppContext();
   const [expanded, setExpanded] = useState(false);
   
@@ -64,23 +64,29 @@ const TaskItem: React.FC<TaskItemProps> = ({
     // If this is a subtask (isSubtask is true), use createNestedSubtask
     if (isSubtask) {
       console.log("Creating nested subtask for task:", task);
-      openModal("createSubtask", {
-        ...task,
-        _id: task._id,
+      const params = {
+        taskId: task._id,
         mainTaskId: task.mainTaskId || task._id,
-        parentId: task._id,
-        isNestedSubtask: true // Flag to indicate this is a nested subtask
-      });
+        isNested: true,
+        task: {
+          title: "",
+          description: "",
+          completed: false
+        }
+      };
+      openModal("createSubtask", params);
     } else {
       // For main tasks, use regular subtask creation
       console.log("Creating regular subtask for task:", task);
-      openModal("createSubtask", {
-        ...task,
-        _id: task._id,
-        mainTaskId: task._id,
-        parentId: task._id,
-        isNestedSubtask: false
-      });
+      const params = {
+        taskId: task._id,
+        task: {
+          title: "",
+          description: "",
+          completed: false
+        }
+      };
+      openModal("createSubtask", params);
     }
     setExpanded(true);
   };

@@ -48,7 +48,7 @@ const CreateSubtaskModal: React.FC = () => {
   });
 
   const onSubmit = async (data: FormValues) => {
-    if (!activeTask?._id) {
+    if (!activeTask?.taskId) {
       toast({
         title: "Error",
         description: "No parent task selected",
@@ -57,33 +57,23 @@ const CreateSubtaskModal: React.FC = () => {
       return;
     }
 
-    // Prepare the task data
-    const taskData = {
-      title: data.title,
-      description: data.description || "",
-      dueDate: data.dueDate
-    };
-
     try {
-      // If we're creating a nested subtask
-      if (activeTask.isNestedSubtask) {
-        await createNestedSubtask(
-          activeTask.mainTaskId,
-          activeTask._id,
-          taskData
-        );
-      } else {
-        // Creating a regular subtask
-        await createSubtask({
-          taskId: activeTask._id,
-          task: taskData
-        });
-      }
+      // Prepare the task data
+      const taskData = {
+        title: data.title,
+        description: data.description || "",
+        dueDate: data.dueDate,
+        completed: false
+      };
 
-      toast({
-        title: "Success",
-        description: "Subtask created successfully",
+      // Create the subtask with the appropriate parameters
+      await createSubtask({
+        taskId: activeTask.taskId,
+        mainTaskId: activeTask.mainTaskId,
+        isNested: activeTask.isNested,
+        task: taskData
       });
+
       closeModal();
     } catch (error) {
       toast({
@@ -102,7 +92,7 @@ const CreateSubtaskModal: React.FC = () => {
       >
         <DialogHeader>
           <DialogTitle className="text-lg font-medium">
-            Create {activeTask?.isNestedSubtask ? 'Nested' : ''} Subtask
+            Create {activeTask?.isNested ? 'Nested' : ''} Subtask
           </DialogTitle>
           <p
             id="subtask-form-description"
