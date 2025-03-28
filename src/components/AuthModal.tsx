@@ -1,11 +1,13 @@
 // @ts-nocheck
 
-import  { type ChangeEventHandler, Fragment, useState } from 'react'
-import { Dialog, DialogTitle, TextField, CircularProgress } from '@mui/material'
+import { type ChangeEventHandler, Fragment, useState } from 'react'
+import { Dialog } from '@mui/material'
 import { useAuth } from '../contexts/AuthContext'
 import { useModalStore } from '../store/useModalStore'
-import { Account} from '../@types'
+import { Account } from '../@types'
 import { Button } from './ui/button'
+import { Input } from './ui/input'
+import { ClipboardList } from 'lucide-react'
 
 interface FormData {
   username: Account['username']
@@ -34,10 +36,8 @@ const AuthModal = () => {
     setError('')
 
     try {
-      console.log(formData);
-
       if (isRegisterMode) {
-                await register(formData);
+        await register(formData);
       } else {
         await login(formData);
       }
@@ -62,81 +62,75 @@ const AuthModal = () => {
     <Dialog
       open={isOpen}
       onClose={onClose}
-      className="bg-black"
-      sx={{
-        "& .MuiDialog-paper": {
-          width: "600px", // Fixed width
-          maxWidth: "90vw", // Responsive maximum width
-          minHeight: "300px",
-          padding: "20px",
-          backgroundColor: "",
-        },
+      className='bg-black/40 backdrop-blur-sm'
+      PaperProps={{
+        style: {
+          backgroundColor: '#18181B',
+          borderRadius: '8px',
+          maxWidth: '400px',
+          width: '90%',
+          padding: '2rem',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '1.5rem'
+        }
       }}
     >
-      {isRegisterMode ? (
-        <DialogTitle>Create a new account</DialogTitle>
-      ) : (
-        <DialogTitle>Login to your account</DialogTitle>
-      )}
+      <div className="flex flex-col items-center gap-4 w-full">
+        {/* Logo */}
+        <div className="flex items-center justify-center w-12 h-12 bg-zinc-800 rounded-lg">
+          <ClipboardList className="w-8 h-8 text-amber-500" />
+        </div>
+        
+        <h1 className="text-2xl font-semibold text-white mb-4">TODO</h1>
 
-      <TextField
-        label="Username"
-        name="username"
-        type="text"
-        value={formData["username"]}
-        onChange={handleChange}
-        variant="filled"
-        sx={{ mx: 2, my: 0.5 }}
-        required
-      />
-      <TextField
-        label="Password"
-        name="password"
-        type="password"
-        value={formData["password"]}
-        onChange={handleChange}
-        variant="filled"
-        sx={{ mx: 2, my: 0.5 }}
-        required
-      />
+        {/* Input Fields */}
+        <div className="w-full space-y-3">
+          <Input
+            type="text"
+            name="username"
+            placeholder="Username"
+            value={formData.username}
+            onChange={handleChange}
+            className="w-full bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-400"
+          />
+          <Input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            className="w-full bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-400"
+          />
+        </div>
 
-      {error && <span className="error">{error}</span>}
+        {error && (
+          <span className="text-red-500 text-sm">{error}</span>
+        )}
 
-      {loading ? (
-        <center>
-          <CircularProgress color="inherit" />
-        </center>
-      ) : isRegisterMode ? (
-        <Fragment>
-          <Button
-            variant="default"
-            className="w-11/12 mx-auto text-white bg-pink-950 hover:bg-pink-800 mt-8"
-            onClick={clickSubmit}
-            disabled={isSubmitButtonDisabled}
-          >
-            Register
-          </Button>
-          <Button onClick={() => setCurrentModal("LOGIN")}>
-            I already have an account
-          </Button>
-        </Fragment>
-      ) : (
-        <Fragment>
+        {/* Action Buttons */}
+        <div className="w-full space-y-3">
           <Button
             onClick={clickSubmit}
-            disabled={isSubmitButtonDisabled}
+            disabled={isSubmitButtonDisabled || loading}
             variant="default"
-            className="w-11/12 mx-auto text-white bg-pink-950 hover:bg-pink-800 mt-8"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2"
           >
-            Login
+            {loading ? 'Loading...' : isRegisterMode ? 'Register' : 'Login'}
           </Button>
-          <Button onClick={() => setCurrentModal("REGISTER")}>
-            I don't have an account
+
+          <Button
+            onClick={() => setCurrentModal(isRegisterMode ? "LOGIN" : "REGISTER")}
+            variant="ghost"
+            className="w-full text-zinc-400 hover:text-white hover:bg-transparent"
+          >
+            {isRegisterMode ? "or login" : "or register"}
           </Button>
-        </Fragment>
-      )}
+        </div>
+      </div>
     </Dialog>
-  );
+  )
 }
 
 export default AuthModal

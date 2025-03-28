@@ -1,5 +1,5 @@
 import type React from "react";
-import { LogoIcon, AddIcon } from "@/icons";
+import { AddIcon } from "@/icons";
 import { useLocation } from "wouter";
 import { useAppContext } from "@/contexts/AppContext";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -15,7 +15,7 @@ import {  useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useModalStore } from "@/store/useModalStore";
 import AuthModal from "../AuthModal";
-import { User2Icon } from "lucide-react";
+import { ClipboardList, User2Icon } from "lucide-react";
 import { ModeToggle } from "../theme/mode-toggle";
 const Header: React.FC = () => {
   const { openModal } = useAppContext();
@@ -45,7 +45,7 @@ const Header: React.FC = () => {
         className="flex items-center space-x-2 cursor-pointer"
         onClick={() => setLocation("/")}
       >
-        <LogoIcon className="text-xl" />
+        <ClipboardList className="w-6 h-6 text-amber-500" />
         <h1 className="font-semibold text-lg">TODO</h1>
       </div>
 
