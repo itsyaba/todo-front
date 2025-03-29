@@ -76,7 +76,7 @@ const CollectionPage: React.FC = () => {
   }
 
   return (
-    <div className="p-4 max-w-4xl mx-auto">
+    <div className="p-4 max-w-4xl mx-auto text-zinc-900 dark:text-zinc-100">
       {/* Collection Header */}
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center">

@@ -39,7 +39,7 @@ const TasksList: React.FC<TasksListProps> = ({ collectionId }) => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 text-zinc-900 dark:text-zinc-100">
       {/* Incomplete Tasks */}
       <div>
         <h2 className="text-sm font-medium mb-2 dark:text-zinc-400">

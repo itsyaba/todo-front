@@ -1,5 +1,4 @@
 // @ts-nocheck
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from "react";
 import {  formatDistanceToNow } from "date-fns";
 import { useTasks } from "@/hooks/useTasks";
@@ -18,7 +17,6 @@ interface TaskItemProps {
   nestingLevel?: number;
 }
 
-// Add proper type for the event handler
 type CheckedState = boolean | 'indeterminate';
 
 const TaskItem: React.FC<TaskItemProps> = ({ 
@@ -30,7 +28,6 @@ const TaskItem: React.FC<TaskItemProps> = ({
   const { showContextMenu, openModal } = useAppContext();
   const [expanded, setExpanded] = useState(false);
   
-  // Use the subTasks array directly from the task object
   const subtasks = task.subTasks || [];
   const hasSubtasks = subtasks.length > 0;
   const completedSubtasks = subtasks.filter(st => st.completed).length;
@@ -116,16 +113,15 @@ const TaskItem: React.FC<TaskItemProps> = ({
 
   return (
     <div className={`
-      relative bg-zinc-900 mb-3 rounded-md cursor-pointer
-      ${isSubtask ? 'ml-6' : 'mb-3  '}
+      relative bg-zinc-300 dark:bg-zinc-900 mb-3 rounded-md cursor-pointer
+      ${isSubtask ? 'ml-6' : 'mb-3'}
     `} onContextMenu={handleContextMenu}
                     onClick={toggleExpanded}
     
     >
       <div className={`
-        // bg-zinc-900 
         rounded-md 
-        ${isSubtask ? 'border-l-4 border-l-zinc-700 dark:bg-zinc-800 mb-1 mr-2 ' : 'mt-1'}
+        ${isSubtask ? 'border-l-4 border-l-zinc-700 bg-zinc-100 dark:bg-zinc-800 mb-1 mr-2 ' : 'mt-1'}
       `}>
         <div className="p-2 flex items-start ">
           <div className="flex-1 ">
